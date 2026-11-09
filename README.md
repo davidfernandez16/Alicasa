@@ -1,52 +1,80 @@
-# DSS2025
+# Alicasa
 
-Para comenzar con el proyecto tenemos que hacer los siguientes pasos (teniendo la base de datos vacia):
+Alicasa es una aplicación web de gestión de inmuebles y reservas. Permite consultar y filtrar alojamientos, crear cuentas, publicar inmuebles, gestionar reservas, escribir reseñas y administrar los datos de la plataforma.
 
-``` 
-git clone ...
+## Arquitectura
 
-composer install
+- **Laravel 11 / PHP 8.2**: aplicación web siguiendo el patrón MVC.
+- **Apache**: servidor web del contenedor de la aplicación.
+- **MySQL 8**: persistencia de usuarios, inmuebles, reservas, ciudades y reseñas.
+- **Docker Compose**: ejecuta la aplicación y la base de datos sin instalar PHP, Composer ni MySQL en Windows.
+- **Autenticación y roles**: Laravel protege las rutas privadas y el middleware `admin` restringe el panel administrativo.
 
-cp .env.example .env
-```
-Configuramos .env con los datos de la base de datos si la tenemos creada, sino tocaria crear una base de datos muy facilmente con CREATE DATABASE "nombre base de datos":
-```
-php artisan key:generate
-
-php artisan migrate:install
-
-php artisan migrate
-
-php artisan db:seed
-```
-Si lo que queremos es actualizar la base de datos con las migraciones o los seeders y ya la hemos creado no hay que usar los pasos de arriba porque nos dará error, tenemos que ejecutar este comando que reinicia lsa migraciones y los seeders:
-
-```
-php artisan migrate:refresh  --seed
-```
-Una vez completados estos pasos tendremos el proyecto de Laravel configurado para o bien seguir trabajando con ello o bien ejecutarlo con el siguiente comando dentro de la carpeta Alicasa y teniendo todas las dependencias instaladas:
-
-```
-php artisan serve
+```text
+Navegador → Laravel / Apache → MySQL
+                 Docker Compose
 ```
 
-Si queremos trabajar con el proyecto y ya lo tenemos instalado y configurado, tenemos que seguir estos pasos:
+## Requisitos
 
-```
-git checkout develop
-git pull origin "develop"
-git checkout "mi rama"
-git merge develop
-git push origin "mi rama"
-```
-Estos pasos son para actualizar tu rama y añadir las ultimas actualizaciones de develop que no tengas en tu rama, si lo que quieres es subir tus modificaciones a tu rama y luego añadirlas a develop hayq ue seguir estos pasos:
+- Docker Desktop con Docker Compose.
+- PowerShell.
 
+## Ejecución en Windows
+
+Entra en la carpeta de Laravel:
+
+```powershell
+cd Alicasa
+Copy-Item .env.example .env
 ```
-git checkout "mi rama"
-git add .
-git commit -m "comentario"
-git push origin "mi rama"
-git checkout develop
-git merge "mi rama"
-git push origin develop
+
+Edita `.env` y establece contraseñas locales para:
+
+```dotenv
+DB_PASSWORD=
+MYSQL_ROOT_PASSWORD=
 ```
+
+Genera una clave de Laravel y copia el valor mostrado en `APP_KEY` dentro de `.env`:
+
+```powershell
+docker compose run --rm --no-deps app php artisan key:generate --show
+```
+
+Inicia la aplicación y crea los datos iniciales:
+
+```powershell
+docker compose up -d
+docker compose exec app php artisan migrate:fresh --seed
+```
+
+Abre [http://localhost:8081](http://localhost:8081).
+
+> `migrate:fresh --seed` elimina y recrea la base de datos local. Úsalo para preparar una instalación nueva o reiniciar los datos de demostración.
+
+## Estructura
+
+```text
+.
+├── Alicasa/            # Aplicación Laravel y configuración Docker
+├── MockUps/            # Diseños de las pantallas
+└── Diagrama UML.png    # Modelo UML del proyecto
+```
+
+Dentro de `Alicasa/` se encuentran `app/` (controladores y modelos), `resources/views/` (vistas Blade), `database/` (migraciones y seeders), `routes/` y `tests/`.
+
+## Comandos útiles
+
+```powershell
+# Ver el estado de los servicios
+docker compose ps
+
+# Detener el entorno conservando la base de datos
+docker compose down
+
+# Detenerlo y borrar la base de datos local
+docker compose down -v
+```
+
+El archivo `.env` contiene configuración local y no se versiona.

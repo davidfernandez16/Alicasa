@@ -1,0 +1,10 @@
+.env
+.git
+.idea
+.vscode
+vendor
+node_modules
+public/build
+public/hot
+storage/logs
+bootstrap/cache/*.php

@@ -48,8 +48,11 @@ Route::middleware('auth')->group(function() {
 
     Route::post('/inmueble/{inmueble}/reservar', [ReservaController::class, 'reservar'])->name('reservar.inmueble');
 
-    // Perfil y panel de admin
+    // Perfil de usuario
     Route::get('/perfil',   [PerfilController::class, 'perfil'])->name('perfil');
+
+    // Panel y operaciones de administración
+    Route::middleware('admin')->group(function() {
     Route::get('/admin',    [AdministradorController::class, 'admin'])->name('admin');
     
 
@@ -107,6 +110,8 @@ Route::middleware('auth')->group(function() {
     Route::get('/reserva/show/ordenar/{id}',    [ReservaController::class, 'ordenar'])->name('ordenar.reserva');
     Route::get('/resenya/show/ordenar/{id}',    [ResenyaController::class, 'ordenar'])->name('ordenar.resenya');
     Route::get('/ciudad/show/ordenar/{id}',     [CiudadController::class, 'ordenar'])->name('ordenar.ciudad');
+
+    });
 
     //BARRA MENU
     Route::get('/inicio/mis_reservas',                 [ReservaController::class, 'mis_reservas'])->name('mis_reservas');

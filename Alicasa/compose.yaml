@@ -1,0 +1,45 @@
+services:
+  app:
+    build: .
+    env_file:
+      - .env
+    environment:
+      DB_CONNECTION: mysql
+      DB_HOST: mysql
+      DB_PORT: "3306"
+    ports:
+      - "127.0.0.1:8081:80"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - alicasa_network
+
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "MYSQL_PWD=$$MYSQL_PASSWORD mysql --protocol=TCP -h localhost -u $$MYSQL_USER $$MYSQL_DATABASE -e 'SELECT 1' > /dev/null 2>&1 || exit 1",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
+    networks:
+      - alicasa_network
+
+volumes:
+  mysql_data:
+
+networks:
+  alicasa_network:
+    driver: bridge
